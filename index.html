@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kali Linux Desktop - Sagar Ghimire</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            background: #0a0a0a;
+            background-image: url(https://www.kali.org/wallpapers/images/2025/kali-oleo.png);
+            background-repeat: no-repeat;
+            background-size: cover;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            color: #00ff00;
+        }
+
+        .desktop {
+            height: calc(100vh - 50px);
+            position: relative;
+            padding: 20px;
+        }
+
+        .hacker-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background:
+                linear-gradient(90deg, transparent 98%, #00ff0020 100%),
+                linear-gradient(0deg, transparent 98%, #00ff0010 100%);
+            background-size: 20px 20px;
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0d1117 100%);
+            border-top: 2px solid #00ff00;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .kali-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #007acc, #005577);
+            border: 2px solid #00aaff;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00aaff;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 10px #00aaff;
+            box-shadow: 0 0 15px rgba(0, 170, 255, 0.3);
+        }
+
+        .kali-logo:hover {
+            background: linear-gradient(135deg, #005577, #007acc);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.6);
+        }
+
+        .taskbar-apps {
+            display: flex;
+            gap: 10px;
+            flex-grow: 1;
+        }
+
+        .taskbar-app {
+            padding: 8px 15px;
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            color: #00ff00;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .taskbar-app.active {
+            display: block;
+            background: linear-gradient(145deg, #003300, #001100);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .taskbar-app:hover {
+            background: linear-gradient(145deg, #004400, #002200);
+            transform: translateY(-2px);
+        }
+
+        .taskbar-time {
+            margin-left: auto;
+            color: #00aaff;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'Fira Code', monospace;
+            text-shadow: 0 0 5px #00aaff;
+        }
+
+        .desktop-icon {
+            position: absolute;
+            width: 80px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .desktop-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .icon-image {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 8px;
+            background: linear-gradient(145deg, #1e3a8a, #1e40af);
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #60a5fa;
+            box-shadow:
+                0 4px 15px rgba(59, 130, 246, 0.3),
+                inset 0 2px 4px rgba(96, 165, 250, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .icon-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .desktop-icon:hover .icon-image::before {
+            left: 100%;
+        }
+
+        .desktop-icon:hover .icon-image {
+            box-shadow:
+                0 6px 25px rgba(59, 130, 246, 0.5),
+                inset 0 2px 4px rgba(96, 165, 250, 0.3);
+            transform: rotateX(10deg);
+        }
+
+        .folder-icon {
+            background: linear-gradient(145deg, #1e3a8a, #1e40af) !important;
+            border: 2px solid #3b82f6 !important;
+        }
+
+        .chrome-icon {
+            background: linear-gradient(145deg, #059669, #047857) !important;
+            border: 2px solid #10b981 !important;
+            color: #6ee7b7 !important;
+        }
+
+        .terminal-icon {
+            background: linear-gradient(145deg, #7c2d12, #991b1b) !important;
+            border: 2px solid #dc2626 !important;
+            color: #fca5a5 !important;
+        }
+
+        .icon-label {
+            color: #00aaff;
+            font-size: 11px;
+            font-weight: 500;
+            text-shadow: 0 0 3px #00aaff;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .window {
+            position: fixed;
+            background: linear-gradient(180deg, #0d1117, #161b22);
+            border: 2px solid #00ff00;
+            border-radius: 8px 8px 0 0;
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(0, 255, 0, 0.2);
+            z-index: 2000;
+            min-width: 400px;
+            min-height: 300px;
+            display: none;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .window-header {
+            height: 40px;
+            background: linear-gradient(180deg, #21262d, #0d1117);
+            border-bottom: 1px solid #00ff00;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            cursor: move;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .window-title {
+            color: #00ff00;
+            font-size: 13px;
+            font-weight: 600;
+            flex-grow: 1;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            transition: all 0.2s ease;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .minimize-btn {
+            background: linear-gradient(145deg, #f59e0b, #d97706);
+            border-color: #f59e0b;
+        }
+
+        .close-btn {
+            background: linear-gradient(145deg, #ef4444, #dc2626);
+            border-color: #ef4444;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .window-content {
+            padding: 20px;
+            color: #00ff00;
+            height: calc(100% - 40px);
+            overflow-y: auto;
+            background: #0d1117;
+        }
+
+        .terminal-content {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Fira Code', monospace;
+            line-height: 1.4;
+        }
+
+        .terminal-line {
+            margin-bottom: 5px;
+        }
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+        }
+
+        .terminal-output {
+            height: calc(100% - 100px);
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .prompt {
+            color: #00aaff;
+        }
+
+        .command {
+            color: #ffff00;
+        }
+
+        .about-content {
+            line-height: 1.8;
+        }
+
+        .about-content h2 {
+            color: #00aaff;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-shadow: 0 0 10px #00aaff;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .info-item {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #ffff00;
+            min-width: 120px;
+            text-shadow: 0 0 5px #ffff00;
+        }
+
+        .info-value {
+            color: #00ff00;
+        }
+
+        .skills-section {
+            margin-top: 25px;
+        }
+
+        .skills-category {
+            margin-bottom: 15px;
+        }
+
+        .skills-category h4 {
+            color: #ff6600;
+            margin-bottom: 8px;
+            text-shadow: 0 0 5px #ff6600;
+        }
+
+        .skills-list {
+            color: #00cccc;
+            line-height: 1.6;
+        }
+
+        .chrome-window {
+            width: 80%;
+            height: 70%;
+            max-width: 1000px;
+        }
+
+        .chrome-header {
+            background: linear-gradient(180deg, #21262d, #0d1117);
+            padding: 10px 15px;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .chrome-address-bar {
+            background: #161b22;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            padding: 8px 15px;
+            font-size: 14px;
+            width: 100%;
+            outline: none;
+            color: #00ff00;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .search-results {
+            padding: 20px;
+            background: #0d1117;
+            color: #00ff00;
+            height: calc(100% - 80px);
+            overflow-y: auto;
+        }
+
+        .result-item {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #21262d;
+        }
+
+        .result-title {
+            color: #00aaff;
+            font-size: 18px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            text-shadow: 0 0 5px #00aaff;
+        }
+
+        .result-url {
+            color: #00ff00;
+            font-size: 13px;
+            margin-bottom: 5px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .result-description {
+            color: #cccccc;
+            line-height: 1.4;
+        }
+
+        .terminal-window .window-content {
+            background: #000;
+            padding: 15px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .desktop {
+                padding: 10px;
+            }
+
+            .window {
+                width: 95% !important;
+                height: 90% !important;
+                min-width: 300px;
+            }
+
+            .desktop-icon {
+                position: relative !important;
+                display: inline-block;
+                margin: 10px;
+            }
+
+            .taskbar-apps {
+                gap: 5px;
+            }
+
+            .taskbar-app {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+        }
+
+        /* Positioning for desktop icons */
+        .about-me {
+            top: 50px;
+            left: 50px;
+        }
+
+        .projects {
+            top: 50px;
+            left: 160px;
+        }
+
+        .tools {
+            top: 50px;
+            left: 270px;
+        }
+
+        .terminal {
+            top: 50px;
+            left: 380px;
+        }
+
+        .chrome {
+            top: 180px;
+            left: 50px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .window {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-2px);
+            }
+
+            40% {
+                transform: translateX(2px);
+            }
+
+            60% {
+                transform: translateX(-1px);
+            }
+
+            80% {
+                transform: translateX(1px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .glitch {
+            animation: glitch 0.3s ease-in-out;
+        }
+
+        .no-results {
+            color: #ff6666;
+            text-align: center;
+            margin-top: 50px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hacker-overlay"></div>
+
+    <div class="desktop">
+        <!-- Desktop Icons -->
+        <div class="desktop-icon about-me" onclick="openWindow('aboutWindow', 'About Me')">
+            <div class="icon-image folder-icon">📁</div>
+            <div class="icon-label">About_Me</div>
+        </div>
+
+        <div class="desktop-icon projects" onclick="openWindow('projectsWindow', 'Projects')">
+            <div class="icon-image folder-icon">💼</div>
+            <div class="icon-label">Projects</div>
+        </div>
+
+        <div class="desktop-icon tools" onclick="openWindow('toolsWindow', 'Tools')">
+            <div class="icon-image folder-icon">🛠️</div>
+            <div class="icon-label">Tools</div>
+        </div>
+
+        <div class="desktop-icon terminal" onclick="openWindow('terminalWindow', 'Terminal')">
+            <div class="icon-image terminal-icon">⚡</div>
+            <div class="icon-label">Terminal</div>
+        </div>
+
+        <div class="desktop-icon chrome" onclick="openWindow('chromeWindow', 'Browser')">
+            <div class="icon-image chrome-icon">🌐</div>
+            <div class="icon-label">Browser</div>
+        </div>
+    </div>
+
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="kali-logo" onclick="showKaliMenu()">K</div>
+        <div class="taskbar-apps" id="taskbarApps">
+            <!-- Dynamic taskbar items will be added here -->
+        </div>
+        <div class="taskbar-time" id="clock"></div>
+    </div>
+
+    <!-- About Me Window -->
+    <div class="window" id="aboutWindow" style="top: 100px; left: 200px; width: 500px; height: 600px;">
+        <div class="window-header">
+            <span class="window-title">[CLASSIFIED] - Sagar_Ghimire.profile</span>
+            <div class="window-controls">
+                <button class="control-btn minimize-btn" onclick="minimizeWindow('aboutWindow', 'About Me')">−</button>
+                <button class="control-btn close-btn" onclick="closeWindow('aboutWindow', 'About Me')">×</button>
+            </div>
+        </div>
+        <div class="window-content terminal-content">
+            <div class="about-content">
+                <h2>┌─ OPERATIVE PROFILE ─┐</h2>
+                <div class="terminal-line">
+                    <span class="prompt">root@kali:</span><span class="command">cat /home/profile/sagar.txt</span>
+                </div>
+                <br>
+                <div class="info-item">
+                    <span class="info-label">CODENAME:</span>
+                    <span class="info-value">Sagar Ghimire</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">LOCATION:</span>
+                    <span class="info-value">Kathmandu, Nepal </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">AGE:</span>
+                    <span class="info-value">22 [ACTIVE]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">GITHUB_ID:</span>
+                    <span class="info-value">anonyTheCoder</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">LINKEDIN:</span>
+                    <span class="info-value">sagar-ghimire-191a28345</span>
+                </div>
+
+                <div class="skills-section">
+                    <div class="terminal-line">
+                        <span class="prompt">root@kali:</span><span class="command">ls -la /skills/</span>
+                    </div>
+                    <br>
+                    <div class="skills-category">
+                        <h4>drwxr-xr-x CORE_SKILLS/</h4>
+                        <div class="skills-list">├── MERN_stack_development<br>├── Ethical_Hacking<br>├──
+                            Cybersecurity<br>├── Backend_Development<br>├── Video_Editing<br>├── PHP_Development<br>└──
+                            Node_Development</div>
+                    </div>
+                    <div class="skills-category">
+                        <h4>drwxr-xr-x LANGUAGES/</h4>
+                        <div class="skills-list">├── Java<br>├── C<br>├── C++<br>├── Python<br>├── PHP<br>└── JavaScript
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Window -->
+    <div class="window" id="projectsWindow" style="top: 120px; left: 250px; width: 600px; height: 500px;">
+        <div class="window-header">
+            <span class="window-title">[MISSION_FILES] - Active_Projects</span>
+            <div class="window-controls">
+                <button class="control-btn minimize-btn"
+                    onclick="minimizeWindow('projectsWindow', 'Projects')">−</button>
+                <button class="control-btn close-btn" onclick="closeWindow('projectsWindow', 'Projects')">×</button>
+            </div>
+        </div>
+        <div class="window-content terminal-content">
+            <div class="terminal-line">
+                <span class="prompt">root@kali:</span><span class="command">find /projects -type f -name
+                    "*.active"</span>
+            </div>
+            <br>
+            <h2>┌─ ACTIVE OPERATIONS ─┐</h2>
+            <div style="line-height: 1.8; margin-top: 20px;">
+                <h3 style="color: #00aaff; margin-bottom: 10px;">🌐 [WEB_EXPLOITATION]</h3>
+                <p style="margin-bottom: 15px; color: #00cccc;">├── Full-stack MERN infiltration systems</p>
+                <p style="margin-bottom: 15px; color: #00cccc;">└── Advanced UI/UX manipulation frameworks</p>
+
+                <h3 style="color: #ff6600; margin-bottom: 10px;">🔐 [CYBER_WARFARE]</h3>
+                <p style="margin-bottom: 15px; color: #00cccc;">├── Penetration testing suites</p>
+                <p style="margin-bottom: 15px; color: #00cccc;">└── Security assessment protocols</p>
+
+                <h3 style="color: #ffff00; margin-bottom: 10px;">🎬 [MEDIA_OPS]</h3>
+                <p style="margin-bottom: 15px; color: #00cccc;">├── Video processing algorithms</p>
+                <p style="margin-bottom: 15px; color: #00cccc;">└── Advanced editing automation</p>
+
+                <h3 style="color: #00ff00; margin-bottom: 10px;">⚙️ [BACKEND_SYSTEMS]</h3>
+                <p style="color: #00cccc;">├── Node.js infiltration tools</p>
+                <p style="color: #00cccc;">└── PHP exploitation frameworks</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tools Window -->
+    <div class="window" id="toolsWindow" style="top: 140px; left: 300px; width: 550px; height: 450px;">
+        <div class="window-header">
+            <span class="window-title">[ARSENAL] - Hacking_Tools</span>
+            <div class="window-controls">
+                <button class="control-btn minimize-btn" onclick="minimizeWindow('toolsWindow', 'Tools')">−</button>
+                <button class="control-btn close-btn" onclick="closeWindow('toolsWindow', 'Tools')">×</button>
+            </div>
+        </div>
+        <div class="window-content terminal-content">
+            <div class="terminal-line">
+                <span class="prompt">root@kali:</span><span class="command">cat /etc/tools.conf</span>
+            </div>
+            <br>
+            <h2>┌─ WEAPON INVENTORY ─┐</h2>
+            <div style="line-height: 1.8; margin-top: 20px;">
+                <h3 style="color: #ff0000; margin-bottom: 10px;">🔒 [PENETRATION]</h3>
+                <p style="margin-bottom: 15px; color: #00cccc;">├── Nmap [Network Discovery]<br>├── Burp Suite [Web
+                    Security]<br>├── Metasploit [Exploitation]<br>├── Wireshark [Traffic Analysis]<br>└── John the
+                    Ripper [Password Cracking]</p>
+
+                <h3 style="color: #00aaff; margin-bottom: 10px;">💻 [DEVELOPMENT]</h3>
+                <p style="margin-bottom: 15px; color: #00cccc;">├── VS Code [Code Editor]<br>├── Git [Version
+                    Control]<br>├── Docker [Containerization]<br>├── MongoDB [Database]<br>└── MySQL [Relational DB]</p>
+
+                <h3 style="color: #ffff00; margin-bottom: 10px;">🎨 [MEDIA_WARFARE]</h3>
+                <p style="margin-bottom: 15px; color: #00cccc;">├── Adobe Premiere Pro<br>├── After Effects<br>├──
+                    Photoshop<br>└── Figma [UI Design]</p>
+
+                <h3 style="color: #00ff00; margin-bottom: 10px;">🖥️ [OPERATING_SYSTEMS]</h3>
+                <p style="color: #00cccc;">├── Kali Linux [Primary]<br>├── Ubuntu [Secondary]<br>├── Windows [Target
+                    Practice]<br>└── macOS [Reconnaissance]</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terminal Window -->
+    <div class="window terminal-window" id="terminalWindow"
+        style="top: 160px; left: 350px; width: 650px; height: 400px;">
+        <div class="window-header">
+            <span class="window-title">[ROOT_ACCESS] - Terminal</span>
+            <div class="window-controls">
+                <button class="control-btn minimize-btn"
+                    onclick="minimizeWindow('terminalWindow', 'Terminal')">−</button>
+                <button class="control-btn close-btn" onclick="closeWindow('terminalWindow', 'Terminal')">×</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="terminal-output" id="terminalOutput">
+                <div class="terminal-line">
+                    <span style="color: #ff0000;">┌──(</span><span style="color: #00aaff;">root㉿kali</span><span
+                        style="color: #ff0000;">)-[</span><span style="color: #ffff00;">~</span><span
+                        style="color: #ff0000;">]</span>
+                </div>
+                <div class="terminal-line">
+                    <span style="color: #ff0000;">└─</span><span style="color: #00aaff;">$</span> <span
+                        style="color: #00ff00;">Welcome to Sagar's Kali Terminal</span>
+                </div>
+                <div class="terminal-line">
+                    <span style="color: #00cccc;">Type 'help' to see available commands</span>
+                </div>
+                <br>
+            </div>
+            <div class="terminal-input-line">
+                <span style="color: #ff0000;">┌──(</span><span style="color: #00aaff;">root㉿kali</span><span
+                    style="color: #ff0000;">)-[</span><span style="color: #ffff00;">~</span><span
+                    style="color: #ff0000;">]</span><br>
+                <span style="color: #ff0000;">└─</span><span style="color: #00aaff;">$</span>
+                <input type="text" class="terminal-input" id="terminalInput" placeholder="Enter command..."
+                    autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <!-- Chrome Browser Window -->
+    <div class="window chrome-window" id="chromeWindow" style="top: 80px; left: 10%;">
+        <div class="window-header">
+            <span class="window-title">[DARKWEB_BROWSER] - Sagar Search Engine</span>
+            <div class="window-controls">
+                <button class="control-btn minimize-btn" onclick="minimizeWindow('chromeWindow', 'Browser')">−</button>
+                <button class="control-btn close-btn" onclick="closeWindow('chromeWindow', 'Browser')">×</button>
+            </div>
+        </div>
+        <div class="window-content" style="padding: 0;">
+            <div class="chrome-header">
+                <input type="text" class="chrome-address-bar" id="searchInput" placeholder="Search Sagar's data..."
+                    autocomplete="off">
+            </div>
+            <div class="search-results" id="searchResults">
+                <div style="text-align: center; margin-top: 50px; color: #00aaff;">
+                    <h2>🔍 SAGAR'S PERSONAL SEARCH ENGINE</h2>
+                    <p style="color: #00cccc; margin-top: 20px;">Search through my profile, skills, projects, and tools
+                    </p>
+                    <p style="color: #ffff00; margin-top: 10px;">Try searching: "skills", "projects", "tools",
+                        "contact", "java", "hacking", etc.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let zIndex = 2000;
+        let activeWindows = new Map();
+
+        // Personal data for search
+        const personalData = {
+            profile: {
+                name: "Sagar Ghimire",
+                age: 22,
+                location: "Kathmandu, Nepal",
+                github: "anonyTheCoder",
+                linkedin: "Profile",
+                coordinates: "27.7172°N, 85.3240°E"
+            },
+            skills: {
+                core: ["MERN stack development", "Ethical Hacking", "Cybersecurity", "Backend Development", "Video Editing", "PHP Development", "Node Development"],
+                languages: ["Java", "C", "C++", "Python", "PHP", "JavaScript"]
+            },
+            tools: {
+                penetration: ["Nmap", "Burp Suite", "Metasploit", "Wireshark", "John the Ripper"],
+                development: ["VS Code", "Git", "Docker", "MongoDB", "MySQL", "React", "Node.js"],
+                media: ["Adobe Premiere Pro", "After Effects", "Photoshop", "Figma"],
+                os: ["Kali Linux", "Ubuntu", "Windows", "macOS"]
+            },
+            projects: {
+                web: ["Full-stack MERN applications", "Advanced UI/UX frameworks", "E-commerce platforms", "Social media apps"],
+                security: ["Penetration testing tools", "Security assessment protocols", "Vulnerability scanners", "Network analysis tools"],
+                media: ["Video processing algorithms", "Advanced editing automation", "Motion graphics tools", "Custom media players"],
+                backend: ["Node.js APIs", "PHP frameworks", "Database optimization", "Server architecture"]
+            }
+        };
+
+        // Terminal commands
+        const terminalCommands = {
+            help: () => `Available commands:
+├── whoami          - Show current user
+├── pwd             - Show current directory  
+├── ls              - List files
+├── cat profile     - Show profile info
+├── cat skills      - Show skills
+├── cat projects    - Show projects
+├── cat tools       - Show tools
+├── uname -a        - System information
+├── id              - User ID info
+├── clear           - Clear terminal
+├── neofetch        - System info display
+└── exit            - Close terminal`,
+
+            whoami: () => "sagar_ghimire",
+
+            pwd: () => "/home/sagar",
+
+            ls: () => `total 8
+drwxr-xr-x 2 root root 4096 Aug 14 12:34 profile/
+drwxr-xr-x 2 root root 4096 Aug 14 12:34 skills/
+drwxr-xr-x 2 root root 4096 Aug 14 12:34 projects/
+drwxr-xr-x 2 root root 4096 Aug 14 12:34 tools/
+-rw-r--r-- 1 root root  156 Aug 14 12:34 README.txt`,
+
+            "cat profile": () => `CODENAME: Sagar Ghimire
+LOCATION: Kathmandu, Nepal 
+AGE: 22 [ACTIVE]
+GITHUB_ID: anonyTheCoder
+LINKEDIN: sagar-ghimire-191a28345
+STATUS: ONLINE`,
+
+            "cat skills": () => `CORE_SKILLS/
+├── MERN_stack_development
+├── Ethical_Hacking  
+├── Cybersecurity
+├── Backend_Development
+├── Video_Editing
+├── PHP_Development
+└── Node_Development
+
+LANGUAGES/
+├── Java
+├── C
+├── C++
+├── Python
+├── PHP
+└── JavaScript`,
+
+            "cat projects": () => `ACTIVE_OPERATIONS/
+├── WEB_EXPLOITATION/
+│   ├── Full-stack MERN systems
+│   └── Advanced UI/UX frameworks
+├── CYBER_WARFARE/
+│   ├── Penetration testing suites
+│   └── Security assessment protocols
+├── MEDIA_OPS/
+│   ├── Video processing algorithms
+│   └── Advanced editing automation
+└── BACKEND_SYSTEMS/
+    ├── Node.js tools
+    └── PHP frameworks`,
+
+            "cat tools": () => `WEAPON_INVENTORY/
+├── PENETRATION/
+│   ├── Nmap [Network Discovery]
+│   ├── Burp Suite [Web Security]
+│   ├── Metasploit [Exploitation]
+│   ├── Wireshark [Traffic Analysis]
+│   └── John the Ripper [Password Cracking]
+├── DEVELOPMENT/
+│   ├── VS Code [Code Editor]
+│   ├── Git [Version Control]
+│   ├── Docker [Containerization]
+│   └── MongoDB [Database]
+└── MEDIA_WARFARE/
+    ├── Adobe Premiere Pro
+    ├── After Effects
+    └── Photoshop`,
+
+            "uname -a": () => "Linux kali 6.1.0-kali7-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.20-1kali1 (2023-03-22) x86_64 GNU/Linux",
+
+            id: () => "uid=0(root) gid=0(root) groups=0(root)",
+
+            clear: () => "CLEAR",
+
+            neofetch: () => `          ,.....                                       
+      .,;;;;;,,;,                                   
+    .,;;;;;;;;;;;;,                                
+  .;;;;;;;;;;;;;;;;;.       ╭─────────────────────╮
+ ,;;;;;;;;;;;;;;;;;;;;.     │ OS: Kali GNU/Linux  │
+;;;;;;;;;;;;;;;;;;;;;;;;;   │ Host: Sagar's PC    │
+;;;;;;;;;;;;;;;;;;;;;;;;'   │ Kernel: 6.1.0-kali │
+;;;;;;;;;;;;;;;;;;;;;;;;.   │ Shell: bash 5.2.15  │
+';;;;;;;;;;;;;;;;;;;;;;;;   │ CPU: Intel Core i7  │
+ ;;;;;;;;;;;;;;;;;;;;;;;;   │ Memory: 16GB RAM    │
+ ';;;;;;;;;;;;;;;;;;;;;;;   │ User: sagar_ghimire │
+  ';;;;;;;;;;;;;;;;;;;;;'   ╰─────────────────────╯
+   ';;;;;;;;;;;;;;;;;;;'                          
+     ';;;;;;;;;;;;;;;;'                           
+        '';;;;;;;;;''                             
+            ''''                                  `,
+
+            exit: () => "EXIT"
+        };
+
+        // Clock functionality
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
+            document.getElementById('clock').textContent = `${dateString} ${timeString}`;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Window management functions
+        function openWindow(windowId, appName) {
+            const window = document.getElementById(windowId);
+            window.style.display = 'block';
+            window.style.zIndex = ++zIndex;
+
+            activeWindows.set(windowId, appName);
+            updateTaskbar();
+        }
+
+        function closeWindow(windowId, appName) {
+            document.getElementById(windowId).style.display = 'none';
+            activeWindows.delete(windowId);
+            updateTaskbar();
+        }
+
+        function minimizeWindow(windowId, appName) {
+            document.getElementById(windowId).style.display = 'none';
+        }
+
+        function updateTaskbar() {
+            const taskbarApps = document.getElementById('taskbarApps');
+            taskbarApps.innerHTML = '';
+
+            activeWindows.forEach((appName, windowId) => {
+                const taskbarApp = document.createElement('div');
+                taskbarApp.className = 'taskbar-app active';
+                taskbarApp.textContent = `[${appName}]`;
+                taskbarApp.onclick = () => toggleWindow(windowId);
+                taskbarApps.appendChild(taskbarApp);
+            });
+        }
+
+        function toggleWindow(windowId) {
+            const window = document.getElementById(windowId);
+            if (window.style.display === 'none') {
+                window.style.display = 'block';
+                window.style.zIndex = ++zIndex;
+            } else {
+                window.style.display = 'none';
+            }
+        }
+
+        function showKaliMenu() {
+            const menuText = `┌─ KALI LINUX MENU ─┐
+│                    │
+├─ About Me         │
+├─ Projects         │
+├─ Tools            │
+├─ Terminal         │
+├─ Browser          │
+│                    │
+└─ Click icons to   │
+   launch apps!     │
+                     │
+[ROOT ACCESS GRANTED]`;
+
+            alert(menuText);
+        }
+
+        // Terminal functionality
+        function initTerminal() {
+            const terminalInput = document.getElementById('terminalInput');
+            if (terminalInput) {
+                terminalInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        const command = this.value.trim();
+                        executeCommand(command);
+                        this.value = '';
+                    }
+                });
+            }
+        }
+
+        function executeCommand(command) {
+            const output = document.getElementById('terminalOutput');
+
+            // Add command to output
+            const commandLine = document.createElement('div');
+            commandLine.className = 'terminal-line';
+            commandLine.innerHTML = `<span style="color: #ff0000;">┌──(</span><span style="color: #00aaff;">root㉿kali</span><span style="color: #ff0000;">)-[</span><span style="color: #ffff00;">~</span><span style="color: #ff0000;">]</span><br><span style="color: #ff0000;">└─</span><span style="color: #00aaff;">$</span> <span style="color: #ffff00;">${command}</span>`;
+            output.appendChild(commandLine);
+
+            // Execute command
+            let result = '';
+            if (terminalCommands[command]) {
+                result = terminalCommands[command]();
+            } else if (command === '') {
+                result = '';
+            } else {
+                result = `bash: ${command}: command not found\nType 'help' for available commands`;
+            }
+
+            if (result === 'CLEAR') {
+                output.innerHTML = `<div class="terminal-line">
+                    <span style="color: #ff0000;">┌──(</span><span style="color: #00aaff;">root㉿kali</span><span style="color: #ff0000;">)-[</span><span style="color: #ffff00;">~</span><span style="color: #ff0000;">]</span>
+                </div>
+                <div class="terminal-line">
+                    <span style="color: #ff0000;">└─</span><span style="color: #00aaff;">$</span> <span style="color: #00ff00;">Terminal cleared</span>
+                </div><br>`;
+            } else if (result === 'EXIT') {
+                closeWindow('terminalWindow', 'Terminal');
+            } else if (result) {
+                const resultLine = document.createElement('div');
+                resultLine.className = 'terminal-line';
+                resultLine.innerHTML = `<span style="color: #00ff00;">${result.replace(/\n/g, '<br>')}</span><br>`;
+                output.appendChild(resultLine);
+            }
+
+            // Scroll to bottom
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Search functionality
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        performSearch(this.value.trim());
+                    }
+                });
+
+                searchInput.addEventListener('input', function () {
+                    if (this.value.trim()) {
+                        performSearch(this.value.trim());
+                    } else {
+                        showDefaultSearch();
+                    }
+                });
+            }
+        }
+
+        function performSearch(query) {
+            const resultsContainer = document.getElementById('searchResults');
+            const results = [];
+
+            query = query.toLowerCase();
+
+            // Search in profile
+            Object.entries(personalData.profile).forEach(([key, value]) => {
+                if (key.toLowerCase().includes(query) || value.toString().toLowerCase().includes(query)) {
+                    results.push({
+                        title: `[PROFILE] ${key.toUpperCase()} Information`,
+                        url: `darknet://sagar.profile/${key}`,
+                        description: `${key}: ${value}`
+                    });
+                }
+            });
+
+            // Search in skills
+            personalData.skills.core.forEach(skill => {
+                if (skill.toLowerCase().includes(query)) {
+                    results.push({
+                        title: `[SKILLS] ${skill} - Core Expertise`,
+                        url: `tor://skills.sagar.dev/core/${skill.replace(/\s+/g, '_')}`,
+                        description: `Advanced proficiency in ${skill}. Part of core skill set for cybersecurity and development operations.`
+                    });
+                }
+            });
+
+            personalData.skills.languages.forEach(lang => {
+                if (lang.toLowerCase().includes(query)) {
+                    results.push({
+                        title: `[PROGRAMMING] ${lang} - Language Expertise`,
+                        url: `onion://code.sagar.dev/languages/${lang}`,
+                        description: `Programming language: ${lang}. Used in various development and security projects.`
+                    });
+                }
+            });
+
+            // Search in tools
+            Object.entries(personalData.tools).forEach(([category, toolList]) => {
+                toolList.forEach(tool => {
+                    if (tool.toLowerCase().includes(query)) {
+                        results.push({
+                            title: `[ARSENAL] ${tool} - ${category.toUpperCase()} Tool`,
+                            url: `darkweb://tools.sagar.dev/${category}/${tool.replace(/\s+/g, '_')}`,
+                            description: `${category} tool: ${tool}. Essential component of the cybersecurity toolkit.`
+                        });
+                    }
+                });
+            });
+
+            // Search in projects
+            Object.entries(personalData.projects).forEach(([category, projectList]) => {
+                projectList.forEach(project => {
+                    if (project.toLowerCase().includes(query)) {
+                        results.push({
+                            title: `[PROJECTS] ${project} - ${category.toUpperCase()}`,
+                            url: `tor://projects.sagar.dev/${category}/${project.replace(/\s+/g, '_')}`,
+                            description: `${category} project: ${project}. Part of active development and security operations.`
+                        });
+                    }
+                });
+            });
+
+            // Search for general terms
+            const generalTerms = {
+                'contact': {
+                    title: '[CONTACT] Get In Touch - Sagar Ghimire',
+                    url: 'darknet://contact.sagar.dev',
+                    description: 'Contact information: GitHub @anonyTheCoder, LinkedIn Profile, Location: Kathmandu, Nepal'
+                },
+                'about': {
+                    title: '[ABOUT] Sagar Ghimire - Cybersecurity Expert',
+                    url: 'tor://about.sagar.dev',
+                    description: '22-year-old cybersecurity expert and full-stack developer from Kathmandu, Nepal. Specializes in ethical hacking and MERN stack development.'
+                },
+                'location': {
+                    title: '[LOCATION] Kathmandu, Nepal - Base of Operations',
+                    url: 'onion://location.sagar.dev',
+                    description: 'Based in Kathmandu, Nepal [27.7172°N, 85.3240°E]. Operating timezone: NPT (UTC+5:45)'
+                }
+            };
+
+            Object.entries(generalTerms).forEach(([term, data]) => {
+                if (query.includes(term)) {
+                    results.push(data);
+                }
+            });
+
+            displaySearchResults(results, query);
+        }
+
+        function displaySearchResults(results, query) {
+            const resultsContainer = document.getElementById('searchResults');
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <h3>🚫 NO RESULTS FOUND</h3>
+                        <p>No data found for: "${query}"</p>
+                        <p style="margin-top: 20px;">Try searching:</p>
+                        <p style="color: #ffff00;">"skills", "projects", "tools", "contact", "java", "hacking", "mern", "cybersecurity"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `<div style="margin-bottom: 20px; color: #00aaff;">
+                        <h3>🔍 SEARCH RESULTS FOR: "${query.toUpperCase()}"</h3>
+                        <p style="color: #00cccc;">Found ${results.length} result(s) in Sagar's database</p>
+                        </div>`;
+
+            results.forEach(result => {
+                html += `
+                    <div class="result-item">
+                        <div class="result-title">${result.title}</div>
+                        <div class="result-url">${result.url}</div>
+                        <div class="result-description">${result.description}</div>
+                    </div>
+                `;
+            });
+
+            resultsContainer.innerHTML = html;
+        }
+
+        function showDefaultSearch() {
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = `
+                <div style="text-align: center; margin-top: 50px; color: #00aaff;">
+                    <h2>🔍 SAGAR'S PERSONAL SEARCH ENGINE</h2>
+                    <p style="color: #00cccc; margin-top: 20px;">Search through my profile, skills, projects, and tools</p>
+                    <p style="color: #ffff00; margin-top: 10px;">Try searching: "skills", "projects", "tools", "contact", "java", "hacking", etc.</p>
+                </div>
+            `;
+        }
+
+        // Make windows draggable
+        function makeDraggable() {
+            const windows = document.querySelectorAll('.window');
+
+            windows.forEach(window => {
+                const header = window.querySelector('.window-header');
+                let isDragging = false;
+                let startX, startY, initialX, initialY;
+
+                header.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    initialX = window.offsetLeft;
+                    initialY = window.offsetTop;
+                    window.style.zIndex = ++zIndex;
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (isDragging) {
+                        const deltaX = e.clientX - startX;
+                        const deltaY = e.clientY - startY;
+                        window.style.left = (initialX + deltaX) + 'px';
+                        window.style.top = (initialY + deltaY) + 'px';
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+            });
+        }
+
+        // Responsive handling
+        function handleResize() {
+            const windows = document.querySelectorAll('.window');
+            windows.forEach(window => {
+                const rect = window.getBoundingClientRect();
+                const viewport = {
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                };
+
+                if (rect.right > viewport.width) {
+                    window.style.left = (viewport.width - rect.width - 20) + 'px';
+                }
+                if (rect.bottom > viewport.height) {
+                    window.style.top = (viewport.height - rect.height - 60) + 'px';
+                }
+                if (rect.left < 0) {
+                    window.style.left = '20px';
+                }
+                if (rect.top < 0) {
+                    window.style.top = '20px';
+                }
+            });
+        }
+
+        window.addEventListener('resize', handleResize);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key === 'F4') {
+                const visibleWindows = Array.from(document.querySelectorAll('.window')).filter(w => w.style.display !== 'none');
+                if (visibleWindows.length > 0) {
+                    const topWindow = visibleWindows.reduce((prev, current) =>
+                        parseInt(current.style.zIndex) > parseInt(prev.style.zIndex) ? current : prev
+                    );
+                    const windowId = topWindow.id;
+                    topWindow.style.display = 'none';
+                    activeWindows.delete(windowId);
+                    updateTaskbar();
+                }
+                e.preventDefault();
+            }
+        });
+
+        // Initialize all functionality
+        function init() {
+            makeDraggable();
+            initTerminal();
+            initSearch();
+
+            // Add glitch effect to Kali logo periodically
+            setInterval(() => {
+                const logo = document.querySelector('.kali-logo');
+                logo.classList.add('glitch');
+                setTimeout(() => {
+                    logo.classList.remove('glitch');
+                }, 300);
+            }, 5000);
+
+            console.log('[SYSTEM] Kali Linux Desktop Environment Initialized');
+            console.log('[USER] Welcome, root@kali');
+            console.log('[STATUS] All systems operational');
+            console.log('[TERMINAL] Type "help" for available commands');
+            console.log('[SEARCH] Browser ready for personal data queries');
+        }
+
+        // Start the system
+        init();
+    </script>
+</body>
+
+</html>
